@@ -1,0 +1,5 @@
+{
+ "revisionRefs":[{
+  "artifactId":"com.google.gson","baseline":"2.7.0","bsn":"com.google.gson","created":1474398815238,"description":"Gson JSON library","groupId":"osgi","md5":"5134A2350F58890FFB9DB0B40047195D","name":"com.google.gson","phase":"MASTER","revision":"751F548C85FA49F330CECBB1875893F971B33C4E","size":231952,"urls":["http://central.maven.org/maven2/com/google/code/gson/gson/2.7/gson-2.7.jar"],"version":"2.7.0"
+ }]
+}
