@@ -3,52 +3,57 @@ package io.openems.device.ess.provider;
 import java.io.IOException;
 import java.util.Dictionary;
 import java.util.Hashtable;
-import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
 
+import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Modified;
 import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.metatype.annotations.Designate;
+import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 import io.openems.device.ess.api.Ess;
+import osgi.enroute.debug.api.Debug;
 
-@Component(name = "io.openems.device.ess.provider.EssImpl")
+@ObjectClassDefinition
+@interface Config {
+	int minSoc() default 10;
+};
+@Designate(ocd = Config.class)
+@Component( //
+		name = "io.openems.device.ess", //
+		property = { //
+				Debug.COMMAND_SCOPE + "=ess", //
+				Debug.COMMAND_FUNCTION + "=setMinSoc" //
+		})
 public class EssImpl implements Ess {
 
 	@Reference
 	private ConfigurationAdmin cm;
-	
-//	@ObjectClassDefinition
-//	@interface Configuration {
-//		int minSoc() default 10;
-//	};	
+
 	@Activate
-//	public void activate(Configuration config) {
-	public void activate(Map<String, Object> map) {
-//	public void activate(EssConfig config) {
-		System.out.println();
+	public void activate(Config config) throws IOException, InvalidSyntaxException {
 		System.out.println("Activate EssImpl");
-		System.out.println("  Config: " + map);
-//		System.out.println("  Config: minSoc = " + config.minSoc());
+		System.out.println("  MinSoc=" + config.minSoc());
+	}
+
+	@Modified
+	public void modified(Config config) {
+		System.out.println("Modified - MinSoc=" + config.minSoc());
 	}
 	
+	public void setMinSoc() throws IOException, InvalidSyntaxException {
+		Configuration c = cm.getConfiguration("io.openems.device.ess");
+        Dictionary<String, Object> d = new Hashtable<>();
+        d.put("minSoc", ThreadLocalRandom.current().nextInt(0, 100));
+        c.update(d);
+	}
+
 	@Override
 	public int getStateOfCharge() {
-		try {
-			Configuration c = cm.getConfiguration("io.openems.device.ess.provider.EssImpl");
-//			Configuration c = (Configuration) cm.getConfiguration("io.openems.device.ess.provider.EssImpl");
-//			EssConfig c = (EssConfig) cm.getConfiguration("io.openems.device.ess.provider.EssImpl");
-			System.out.println(c.toString());
-			Dictionary<String, Object> d = new Hashtable<>();
-			d.put("minSOC", new Integer(5));
-//			c.minSoc = 15;
-//			c.update(d);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 		return ThreadLocalRandom.current().nextInt(0, 100);
 	}
 
